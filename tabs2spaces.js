@@ -25,7 +25,7 @@ while (!text_file.AtEndOfStream) {
     while (TAB.test(cur_line))
         cur_line = cur_line.replace(TAB, spaces(TAB_STOP - cur_line.search(TAB) % TAB_STOP));
     buffer += cur_line + EOL;
-	}
+    }
 text_file.Close();
 
 text_file = file_system.OpenTextFile(file_name, FOR_WRITING);
