@@ -32,12 +32,12 @@ open DISPLAY, "< $display_name";
 while (<DISPLAY>)
 {
     chomp;
-    ($col, $val) = split(':');
+    ($col, $val) = split(/:/);
     ($col, $val) = (trim($col), trim($val));
 
     if ($fix_element) {
         # insert pres_iap_iref before pres_selectable_element
-        if ($col eq 'pres_selectable_element' && $elem_flag{'pres_iap_iref'} eq 0) {
+        if ($col eq 'pres_selectable_element' && !$elem_flag{'pres_iap_iref'}) {
             $elem_flag{'pres_iap_iref'} = 1;
             print "  pres_iap_iref : \"12\"\n$_\n";
         }
@@ -47,7 +47,7 @@ while (<DISPLAY>)
         }
         elsif ($col eq 'end_elem_ref_part') {
             # insert pres_suppl_att_table before end_elem_ref_part if not already present
-            if ($elem_flag{'pres_suppl_att_table'} eq 0) {
+            if (!$elem_flag{'pres_suppl_att_table'}) {
                 print "  pres_suppl_att_table : \"VAT_DOUBLE_INDIC\"\n";
             }
             print "$_\n";
