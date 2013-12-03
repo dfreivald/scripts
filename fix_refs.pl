@@ -40,7 +40,7 @@ while (<DISPLAY>)
         if ($col eq 'pres_selectable_element' && $elem_flag{'pres_iap_iref'} eq 0) {
             $elem_flag{'pres_iap_iref'} = 1;
             print "  pres_iap_iref : \"12\"\n$_\n";
-	    }
+        }
         elsif (exists $elem_flag{$col}) {
             $elem_flag{$col} = 1;
             print "  $col : $elem_fix{$col}\n";
