@@ -18,10 +18,24 @@ var MSGCONFIRM      = "Convert all csv and text files in \n" +
                       "This may take several minutes.";
 var MSGFINISHED     = "Finished converting all files.";
 
+
 var file_system = new ActiveXObject("Scripting.FileSystemObject");
 var shell = new ActiveXObject("WScript.Shell");
 
-if (!WScript.Arguments.Count())	{
+function convert_file(file_name) {
+    var file_read = file_system.OpenTextFile(file_name, FOR_READING);
+    var file_write = file_system.OpenTextFile(file_name + '.tmp', FOR_WRITING, true);
+    while (!file_read.AtEndOfStream) {
+        // takes advantage of TextStream defaults to automatically remove and re-add default EOL
+        file_write.WriteLine(file_read.ReadLine());
+        }
+    file_write.Close();
+    file_read.Close();
+    file_system.DeleteFile(file_name);
+    file_system.MoveFile(file_name + '.tmp', file_name);
+    }
+
+if (!WScript.Arguments.Count()) {
     if (MBRESULTYES == shell.Popup(MSGCONFIRM, 0, MSGTITLE, MBYESNOCANCEL + MBEXCLAMATION)) {
         var cur_directory = file_system.GetFolder(shell.CurrentDirectory);
         for (var cur_file = new Enumerator(cur_directory.Files); !cur_file.atEnd(); cur_file.moveNext()) {
@@ -36,14 +50,3 @@ else {
 
 shell.Popup(MSGFINISHED, 0, MSGTITLE, MBOKONLY);
 
-function convert_file(file_name) {
-    var file_read = file_system.OpenTextFile(file_name, FOR_READING);
-    var file_write = file_system.OpenTextFile(file_name + '.tmp', FOR_WRITING, true);
-    while (!file_read.AtEndOfStream) {
-        file_write.WriteLine(file_read.ReadLine());	     // takes advantage of TextStream defaults
-        }
-    file_write.Close();
-    file_read.Close();
-    file_system.DeleteFile(file_name);
-    file_system.MoveFile(file_name + '.tmp', file_name);
-    }
