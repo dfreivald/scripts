@@ -10,13 +10,17 @@ fi
 
 source $controlfolder/control.txt
 
+# the included copy of oga_controls seems to breaks exiting on non oga devices...
+rm -f "/$directory/ports/rawgl/oga_controls"
+
 get_controls
 
 GAMEDIR="/$directory/ports/rawgl"
 cd $GAMEDIR
 
 $ESUDO chmod 666 /dev/tty1
-$ESUDO $controlfolder/oga_controls rawgl $param_device &
+# use gptokeyb instead
+$GPTOKEYB "rawgl" & 
 if [[ $LOWRES == "Y" ]]; then
   rawgl_screen="--window=480x320"
 elif [[ -e "/dev/input/by-path/platform-odroidgo3-joypad-event-joystick" ]]; then
@@ -24,8 +28,13 @@ elif [[ -e "/dev/input/by-path/platform-odroidgo3-joypad-event-joystick" ]]; the
 else
   rawgl_screen="--window=640x480"
 fi
-LD_LIBRARY_PATH="$GAMEDIR/libs:$LD_LIBRARY_PATH" SDL_GAMECONTROLLERCONFIG="$sdl_controllerconfig" ./rawgl $rawgl_screen --render=software --datapath="$GAMEDIR/gamedata" --language=us 2>&1 | tee $GAMEDIR/log.txt
-$ESUDO kill -9 $(pidof oga_controls)
+# add support for 3DO iso file
+GAMEDATA="$(ls $GAMEDIR/gamedata/*.iso | head -1)"
+if [[ "$GAMEDATA" == "" ]]; then
+  GAMEDATA="$GAMEDIR/gamedata"
+fi
+LD_LIBRARY_PATH="$GAMEDIR/libs:$LD_LIBRARY_PATH" SDL_GAMECONTROLLERCONFIG="$sdl_controllerconfig" ./rawgl $rawgl_screen --render=software --datapath="$GAMEDATA" --language=us 2>&1 | tee $GAMEDIR/log.txt
+$ESUDO kill -9 $(pidof gptokeyb)
 $ESUDO systemctl restart oga_events &
 printf "\033c" >> /dev/tty1
 
